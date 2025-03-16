@@ -31,6 +31,17 @@
     --highlight-color: #3498db;
     --card-hover-transform: translateY(-5px);
     --card-hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    
+    /* Новые переменные для улучшенной навигации */
+    --nav-active-bg: rgba(36, 129, 204, 0.1);
+    --nav-hover-bg: rgba(36, 129, 204, 0.05);
+    --nav-icon-size: 24px;
+    --nav-text-size: 14px;
+    --progress-bar-height: 6px;
+    --progress-bar-radius: 3px;
+    --progress-bg: #e9ecef;
+    --progress-value-bg: #2481cc;
+    --progress-animation-duration: 1s;
 }
 
 * {
@@ -1797,4 +1808,293 @@ footer {
 
 .action-button:active {
     transform: translateY(0);
+}
+
+/* Новые стили для улучшенной навигации */
+.main-navigation {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--background-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+    transition: var(--transition);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav-brand img {
+    height: 32px;
+    margin-right: var(--spacing-sm);
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    position: relative;
+    margin: 0 var(--spacing-sm);
+}
+
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    background-color: var(--nav-hover-bg);
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    background-color: var(--nav-active-bg);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.nav-icon {
+    font-size: var(--nav-icon-size);
+    margin-bottom: var(--spacing-sm);
+}
+
+.nav-text {
+    font-size: var(--nav-text-size);
+    text-align: center;
+}
+
+.nav-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--error-color);
+}
+
+/* Стили для мобильной навигации */
+.mobile-nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Прогресс-бары */
+.progress-container {
+    width: 100%;
+    height: var(--progress-bar-height);
+    background-color: var(--progress-bg);
+    border-radius: var(--progress-bar-radius);
+    margin: var(--spacing-sm) 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--progress-value-bg);
+    border-radius: var(--progress-bar-radius);
+    transition: width var(--progress-animation-duration) ease;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 25%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 75%
+    );
+    animation: progress-shine 2s infinite linear;
+}
+
+@keyframes progress-shine {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.progress-text {
+    font-size: 12px;
+    color: var(--dark-gray);
+    margin-top: 4px;
+    text-align: right;
+}
+
+/* Улучшенные карточки курсов и тестов */
+.course-card, .test-card {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--medium-gray);
+    background-color: var(--background-color);
+}
+
+.course-card:hover, .test-card:hover {
+    transform: var(--card-hover-transform);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.card-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--medium-gray);
+    background-color: var(--light-gray);
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--heading-color);
+}
+
+.card-body {
+    padding: var(--spacing-md);
+}
+
+.card-footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--medium-gray);
+    background-color: var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-wrap: wrap;
+    }
+    
+    .mobile-nav-toggle {
+        display: block;
+    }
+    
+    .nav-menu {
+        flex-basis: 100%;
+        flex-direction: column;
+        display: none;
+        margin-top: var(--spacing-md);
+    }
+    
+    .nav-menu.active {
+        display: flex;
+    }
+    
+    .nav-item {
+        margin: var(--spacing-sm) 0;
+    }
+    
+    .nav-link {
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+    
+    .nav-icon {
+        margin-right: var(--spacing-md);
+        margin-bottom: 0;
+    }
+    
+    .fixed-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--background-color);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        padding: var(--spacing-sm) 0;
+    }
+    
+    .fixed-bottom-nav .nav-menu {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        margin: 0;
+    }
+    
+    .fixed-bottom-nav .nav-item {
+        margin: 0;
+    }
+    
+    .fixed-bottom-nav .nav-link {
+        flex-direction: column;
+        padding: var(--spacing-sm);
+    }
+    
+    .fixed-bottom-nav .nav-icon {
+        margin-right: 0;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .app-content {
+        padding-bottom: 70px; /* Учитываем высоту нижней навигации */
+    }
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    body.tg-dark-theme .main-navigation {
+        background-color: var(--tg-theme-bg-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.tg-dark-theme .nav-link {
+        color: var(--tg-theme-text-color);
+    }
+    
+    body.tg-dark-theme .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    body.tg-dark-theme .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    body.tg-dark-theme .progress-container {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    body.tg-dark-theme .card-header,
+    body.tg-dark-theme .card-footer {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
 } 
