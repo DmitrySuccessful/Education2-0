@@ -1709,16 +1709,15 @@ footer {
     }
     
     body.tg-dark-theme .navbar-nav .nav-link {
-        color: #e0e0e0;
+        color: var(--tg-theme-text-color);
     }
     
     body.tg-dark-theme .navbar-nav .nav-link:hover {
-        background-color: rgba(100, 181, 246, 0.2);
+        background-color: rgba(255, 255, 255, 0.05);
     }
     
     body.tg-dark-theme .navbar-nav .nav-link.active {
-        background-color: var(--highlight-color);
-        color: #212121;
+        background-color: rgba(255, 255, 255, 0.1);
     }
     
     body.tg-dark-theme .dropdown-menu {
@@ -1726,11 +1725,11 @@ footer {
     }
     
     body.tg-dark-theme .dropdown-item {
-        color: #e0e0e0;
+        color: var(--tg-theme-text-color);
     }
     
     body.tg-dark-theme .dropdown-item:hover {
-        background-color: rgba(100, 181, 246, 0.2);
+        background-color: rgba(255, 255, 255, 0.05);
     }
     
     body.tg-dark-theme .app-navigation {
@@ -2097,4 +2096,123 @@ footer {
     body.tg-dark-theme .card-footer {
         background-color: rgba(255, 255, 255, 0.05);
     }
+}
+
+/* Стили для профиля пользователя */
+.profile-header {
+    border-radius: var(--border-radius);
+    background-color: var(--background-color);
+    transition: var(--transition);
+}
+
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.avatar-initials {
+    text-transform: uppercase;
+}
+
+.stat-card {
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    color: var(--tg-theme-hint-color);
+    margin-bottom: 0;
+}
+
+.course-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.course-progress-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.course-progress-title {
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px;
+    background-color: var(--light-gray);
+}
+
+.achievements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    background-color: var(--light-gray);
+    transition: var(--transition);
+}
+
+.achievement-item:hover {
+    background-color: var(--medium-gray);
+}
+
+.achievement-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.achievement-date {
+    font-size: 0.8rem;
+    color: var(--tg-theme-hint-color);
 } 

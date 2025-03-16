@@ -763,165 +763,120 @@ const tests = {
 // Данные пользователя
 let userData = {
     completedLessons: [],
-    testResults: []
+    testResults: [],
+    name: "Пользователь",
+    points: 0,
+    achievements: []
 };
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', function() {
     // Инициализация Telegram WebApp
-    tg.expand();
-    
-    // Применение темы Telegram
-    applyTelegramTheme();
+    if (tg && tg.initData) {
+        // Если приложение запущено в Telegram, применяем тему Telegram
+        if (tg.colorScheme === 'dark') {
+            document.body.classList.add('tg-dark-theme');
+        }
+        
+        // Настраиваем кнопку назад
+        tg.BackButton.onClick(function() {
+            // Обрабатываем нажатие кнопки назад
+            handleBackButton();
+        });
+    }
     
     // Инициализация навигации
-    initNavigation();
-    
-    // Инициализация обработчиков событий
-    initEventListeners();
-    
-    // Home tab elements
-    const balanceElement = document.getElementById('balance');
-    const customersElement = document.getElementById('customers');
-    const productsElement = document.getElementById('products');
-    const startSimulationBtn = document.getElementById('start-simulation');
-    
-    // Shop tab elements
-    const inventoryList = document.getElementById('inventory-list');
-    const addProductForm = document.getElementById('add-product-form');
-    
-    // Marketing tab elements
-    const activeCampaignsList = document.getElementById('active-campaigns');
-    const campaignButtons = document.querySelectorAll('[data-campaign]');
-    
-    // Settings tab elements
-    const shopSettingsForm = document.getElementById('shop-settings-form');
-    const gameSettingsForm = document.getElementById('game-settings-form');
-    
-    // Initialize the UI
-    updateStats();
-    
-    // Event Listeners
-    
-    // Tab navigation
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
+    const navButtons = document.querySelectorAll('.nav-button');
+    navButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
             
-            // Remove active class from all tabs
-            navLinks.forEach(link => link.classList.remove('active'));
-            tabContents.forEach(tab => tab.classList.remove('active'));
-            
-            // Add active class to clicked tab
+            // Обновляем активную кнопку
+            navButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
-            // Show corresponding content
-            const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId).classList.add('active');
+            // Показываем соответствующую секцию
+            showSection(sectionId);
+            
+            // Скрываем кнопку назад в Telegram
+            if (tg && tg.BackButton) {
+                tg.BackButton.hide();
+            }
         });
     });
     
-    // Start simulation button
-    if (startSimulationBtn) {
-        startSimulationBtn.addEventListener('click', function() {
-            if (!gameState.simulationRunning) {
-                startSimulation();
-                this.textContent = 'Остановить день';
-            } else {
-                stopSimulation();
-                this.textContent = 'Начать день';
-            }
-        });
-    }
-    
-    // Add product form
-    if (addProductForm) {
-        addProductForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const productName = document.getElementById('product-name').value;
-            const productPrice = parseFloat(document.getElementById('product-price').value);
-            const productCost = parseFloat(document.getElementById('product-cost').value);
-            const productQuantity = parseInt(document.getElementById('product-quantity').value);
-            
-            // Validate inputs
-            if (productPrice <= productCost) {
-                showNotification('Цена продажи должна быть выше закупочной цены!', 'error');
-                return;
-            }
-            
-            // Calculate total cost
-            const totalCost = productCost * productQuantity;
-            
-            // Check if user has enough balance
-            if (totalCost > gameState.balance) {
-                showNotification('Недостаточно средств для закупки товара!', 'error');
-                return;
-            }
-            
-            // Add product to inventory
-            const product = {
-                id: Date.now(), // Unique ID
-                name: productName,
-                price: productPrice,
-                cost: productCost,
-                quantity: productQuantity,
-                sold: 0
-            };
-            
-            gameState.products.push(product);
-            gameState.balance -= totalCost;
-            
-            // Update UI
-            updateInventory();
-            updateStats();
-            showNotification(`Товар "${productName}" добавлен в ассортимент!`, 'success');
-            
-            // Reset form
-            addProductForm.reset();
-        });
-    }
-    
-    // Campaign buttons
-    campaignButtons.forEach(button => {
+    // Инициализация кнопок курсов
+    const courseButtons = document.querySelectorAll('[data-course-id]');
+    courseButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const campaignType = this.getAttribute('data-campaign');
-            startCampaign(campaignType);
+            const courseId = this.getAttribute('data-course-id');
+            openCourse(courseId);
         });
     });
     
-    // Shop settings form
-    if (shopSettingsForm) {
-        shopSettingsForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    // Инициализация кнопок тестов
+    const testButtons = document.querySelectorAll('[data-test-id]');
+    testButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const testId = this.getAttribute('data-test-id');
+            startTest(testId);
+        });
+    });
+    
+    // Обработчик кнопки редактирования профиля
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function() {
+            // Заполняем форму текущими данными
+            const profileNameInput = document.getElementById('profile-name');
+            if (profileNameInput) {
+                profileNameInput.value = userData.name || '';
+            }
             
-            gameState.settings.shopName = document.getElementById('shop-name').value;
-            gameState.settings.shopType = document.getElementById('shop-type').value;
-            
-            saveGameState();
-            showNotification('Настройки магазина сохранены!', 'success');
+            // Показываем модальное окно
+            const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+            editProfileModal.show();
         });
     }
     
-    // Game settings form
-    if (gameSettingsForm) {
-        gameSettingsForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    // Обработчик кнопки сохранения профиля
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', function() {
+            // Получаем новое имя пользователя
+            const profileNameInput = document.getElementById('profile-name');
+            if (profileNameInput) {
+                userData.name = profileNameInput.value.trim() || 'Пользователь';
+            }
             
-            gameState.settings.difficulty = document.getElementById('difficulty').value;
-            gameState.settings.simulationSpeed = document.getElementById('simulation-speed').value;
-            gameState.settings.autoSave = document.getElementById('auto-save').checked;
+            // Сохраняем данные пользователя
+            saveUserData();
             
-            saveGameState();
-            showNotification('Настройки игры сохранены!', 'success');
+            // Обновляем профиль
+            updateUserProfile();
+            
+            // Закрываем модальное окно
+            const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            if (editProfileModal) {
+                editProfileModal.hide();
+            }
+            
+            // Показываем уведомление
+            showNotification('Профиль успешно обновлен!', 'success');
         });
     }
-    
-    // Load saved game state if exists
-    loadGameState();
     
     // Загрузка данных пользователя (если есть)
     loadUserData();
+    
+    // Если это первый запуск (нет сохраненных данных), показываем приветственное сообщение
+    if (userData.completedLessons.length === 0 && userData.testResults.length === 0) {
+        // Показываем модальное окно для ввода имени
+        setTimeout(() => {
+            const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+            editProfileModal.show();
+        }, 1000);
+    }
 });
 
 // Game Functions
@@ -1641,6 +1596,12 @@ function markLessonAsCompleted(courseId, lessonId) {
     // Добавляем в список пройденных уроков
     if (!userData.completedLessons.includes(`${courseId}-${lessonId}`)) {
         userData.completedLessons.push(`${courseId}-${lessonId}`);
+        
+        // Начисляем очки за прохождение урока (2 очка за каждый урок)
+        addPoints(2);
+        
+        // Проверяем достижения
+        checkAchievements(courseId, lessonId);
     }
     
     // Сохраняем данные пользователя
@@ -1650,12 +1611,55 @@ function markLessonAsCompleted(courseId, lessonId) {
     updateCourseProgress(courseId);
 }
 
+// Проверить достижения
+function checkAchievements(courseId, lessonId) {
+    const course = courses[courseId];
+    if (!course) return;
+    
+    // Достижение за первый пройденный урок
+    if (userData.completedLessons.length === 1) {
+        addAchievement('Первый шаг', '🚀');
+    }
+    
+    // Достижение за прохождение 5 уроков
+    if (userData.completedLessons.length === 5) {
+        addAchievement('Начинающий ученик', '📚');
+    }
+    
+    // Достижение за прохождение 10 уроков
+    if (userData.completedLessons.length === 10) {
+        addAchievement('Прилежный ученик', '🎓');
+    }
+    
+    // Достижение за прохождение 20 уроков
+    if (userData.completedLessons.length === 20) {
+        addAchievement('Эксперт', '🏆');
+    }
+    
+    // Достижение за прохождение всех уроков в курсе
+    const totalLessons = course.lessons.length;
+    const completedLessonsInCourse = course.lessons.filter(l => l.completed).length;
+    
+    if (completedLessonsInCourse === totalLessons) {
+        addAchievement(`Курс "${course.title}" завершен!`, '🎉');
+    }
+}
+
 // Сохранить результат теста
 function saveTestResult(testId, score) {
+    const test = tests[testId];
+    if (!test) return;
+    
     // Проверяем, есть ли уже результат для этого теста
     const existingResultIndex = userData.testResults.findIndex(r => r.testId === testId);
     
+    // Определяем, является ли это улучшением результата
+    let isImprovement = false;
+    
     if (existingResultIndex !== -1) {
+        // Проверяем, улучшил ли пользователь свой результат
+        isImprovement = score > userData.testResults[existingResultIndex].score;
+        
         // Обновляем существующий результат
         userData.testResults[existingResultIndex].score = score;
         userData.testResults[existingResultIndex].date = new Date().toISOString();
@@ -1666,10 +1670,49 @@ function saveTestResult(testId, score) {
             score: score,
             date: new Date().toISOString()
         });
+        
+        // Новый тест всегда считается "улучшением"
+        isImprovement = true;
+    }
+    
+    // Если это улучшение или новый результат, начисляем очки
+    if (isImprovement) {
+        // Начисляем очки в зависимости от результата (от 1 до 5 очков)
+        const points = Math.max(1, Math.floor(score * 5));
+        addPoints(points);
+        
+        // Проверяем достижения за тесты
+        checkTestAchievements(testId, score);
     }
     
     // Сохраняем данные пользователя
     saveUserData();
+}
+
+// Проверить достижения за тесты
+function checkTestAchievements(testId, score) {
+    const test = tests[testId];
+    if (!test) return;
+    
+    // Достижение за первый пройденный тест
+    if (userData.testResults.length === 1) {
+        addAchievement('Первый тест', '📝');
+    }
+    
+    // Достижение за прохождение 3 тестов
+    if (userData.testResults.length === 3) {
+        addAchievement('Тестировщик', '✅');
+    }
+    
+    // Достижение за прохождение всех тестов
+    if (userData.testResults.length === Object.keys(tests).length) {
+        addAchievement('Мастер тестов', '🏅');
+    }
+    
+    // Достижение за отличный результат (более 90%)
+    if (score >= 0.9) {
+        addAchievement(`Отличный результат в тесте "${test.title}"`, '🌟');
+    }
 }
 
 // Обновить прогресс курса
@@ -1772,6 +1815,9 @@ function loadUserData() {
     
     // Обновляем прогресс курсов
     updateAllCoursesProgress();
+    
+    // Обновляем профиль пользователя
+    updateUserProfile();
 }
 
 // Применить данные пользователя
@@ -1954,4 +2000,318 @@ function calculateInvestment() {
     
     // Показываем результаты
     document.getElementById('investment-result').style.display = 'block';
+}
+
+// Обновить профиль пользователя
+function updateUserProfile() {
+    // Обновляем имя пользователя
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+        userNameElement.textContent = userData.name || 'Пользователь';
+    }
+    
+    // Обновляем инициалы пользователя
+    const userInitialsElement = document.getElementById('user-initials');
+    if (userInitialsElement) {
+        const initials = userData.name ? userData.name.charAt(0) : 'U';
+        userInitialsElement.textContent = initials;
+    }
+    
+    // Обновляем статистику
+    updateUserStats();
+    
+    // Обновляем прогресс по курсам
+    updateCourseProgressList();
+    
+    // Обновляем достижения
+    updateAchievementsList();
+}
+
+// Обновить статистику пользователя
+function updateUserStats() {
+    // Количество пройденных уроков
+    const completedLessonsCount = document.getElementById('completed-lessons-count');
+    if (completedLessonsCount) {
+        completedLessonsCount.textContent = userData.completedLessons.length;
+    }
+    
+    // Количество открытых курсов
+    const unlockedCoursesCount = document.getElementById('unlocked-courses-count');
+    if (unlockedCoursesCount) {
+        let count = 0;
+        for (const courseId in courses) {
+            if (isCourseUnlocked(parseInt(courseId))) {
+                count++;
+            }
+        }
+        unlockedCoursesCount.textContent = count;
+    }
+    
+    // Количество доступных для открытия курсов
+    const availableCoursesCount = document.getElementById('available-courses-count');
+    if (availableCoursesCount) {
+        let count = 0;
+        for (const courseId in courses) {
+            if (!isCourseUnlocked(parseInt(courseId)) && canUnlockCourse(parseInt(courseId))) {
+                count++;
+            }
+        }
+        availableCoursesCount.textContent = count;
+    }
+}
+
+// Проверить, разблокирован ли курс
+function isCourseUnlocked(courseId) {
+    const course = courses[courseId];
+    if (!course) return false;
+    
+    // Первый курс всегда разблокирован
+    if (courseId === 1) return true;
+    
+    // Проверяем, есть ли хотя бы один пройденный урок в этом курсе
+    return course.lessons.some(lesson => lesson.completed);
+}
+
+// Проверить, можно ли разблокировать курс
+function canUnlockCourse(courseId) {
+    // Проверяем, достаточно ли у пользователя очков для разблокировки курса
+    // В данной реализации считаем, что для разблокировки курса нужно 10 очков
+    return userData.points >= 10;
+}
+
+// Обновить список прогресса по курсам
+function updateCourseProgressList() {
+    const courseProgressList = document.getElementById('course-progress-list');
+    if (!courseProgressList) return;
+    
+    // Очищаем список
+    courseProgressList.innerHTML = '';
+    
+    // Добавляем прогресс по каждому курсу
+    for (const courseId in courses) {
+        const course = courses[courseId];
+        
+        // Создаем элемент прогресса курса
+        const courseProgressItem = document.createElement('div');
+        courseProgressItem.className = 'course-progress-item';
+        
+        // Заголовок курса
+        const courseTitle = document.createElement('h4');
+        courseTitle.className = 'course-progress-title';
+        courseTitle.textContent = course.title;
+        
+        // Прогресс-бар
+        const progressContainer = document.createElement('div');
+        progressContainer.className = 'progress';
+        
+        // Вычисляем процент прогресса
+        const totalLessons = course.lessons.length;
+        const completedLessons = course.lessons.filter(lesson => lesson.completed).length;
+        const progressPercent = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
+        
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+        progressBar.style.width = `${progressPercent}%`;
+        progressBar.setAttribute('role', 'progressbar');
+        progressBar.setAttribute('aria-valuenow', progressPercent);
+        progressBar.setAttribute('aria-valuemin', '0');
+        progressBar.setAttribute('aria-valuemax', '100');
+        
+        // Информация о прогрессе
+        const progressInfo = document.createElement('div');
+        progressInfo.className = 'd-flex justify-content-between';
+        
+        const progressText = document.createElement('span');
+        progressText.textContent = `${completedLessons}/${totalLessons} уроков`;
+        
+        const progressPercText = document.createElement('span');
+        progressPercText.textContent = `${Math.round(progressPercent)}%`;
+        
+        // Собираем элементы
+        progressInfo.appendChild(progressText);
+        progressInfo.appendChild(progressPercText);
+        progressContainer.appendChild(progressBar);
+        
+        courseProgressItem.appendChild(courseTitle);
+        courseProgressItem.appendChild(progressContainer);
+        courseProgressItem.appendChild(progressInfo);
+        
+        // Добавляем в список
+        courseProgressList.appendChild(courseProgressItem);
+    }
+}
+
+// Обновить список достижений
+function updateAchievementsList() {
+    const achievementsList = document.getElementById('achievements-list');
+    if (!achievementsList) return;
+    
+    // Очищаем список
+    achievementsList.innerHTML = '';
+    
+    // Проверяем, есть ли достижения
+    if (userData.achievements && userData.achievements.length > 0) {
+        // Скрываем сообщение об отсутствии достижений
+        const noAchievementsMessage = document.getElementById('no-achievements-message');
+        if (noAchievementsMessage) {
+            noAchievementsMessage.style.display = 'none';
+        }
+        
+        // Добавляем достижения в список
+        userData.achievements.forEach(achievement => {
+            const achievementItem = document.createElement('div');
+            achievementItem.className = 'achievement-item';
+            
+            const achievementIcon = document.createElement('div');
+            achievementIcon.className = 'achievement-icon';
+            achievementIcon.textContent = achievement.icon || '🏆';
+            
+            const achievementInfo = document.createElement('div');
+            achievementInfo.className = 'achievement-info';
+            
+            const achievementTitle = document.createElement('div');
+            achievementTitle.className = 'achievement-title';
+            achievementTitle.textContent = achievement.title;
+            
+            const achievementDate = document.createElement('div');
+            achievementDate.className = 'achievement-date';
+            achievementDate.textContent = new Date(achievement.date).toLocaleDateString();
+            
+            achievementInfo.appendChild(achievementTitle);
+            achievementInfo.appendChild(achievementDate);
+            
+            achievementItem.appendChild(achievementIcon);
+            achievementItem.appendChild(achievementInfo);
+            
+            achievementsList.appendChild(achievementItem);
+        });
+    } else {
+        // Показываем сообщение об отсутствии достижений
+        const noAchievementsMessage = document.createElement('div');
+        noAchievementsMessage.id = 'no-achievements-message';
+        noAchievementsMessage.className = 'text-center text-muted py-3';
+        noAchievementsMessage.textContent = 'У вас пока нет достижений. Начните проходить курсы и тесты!';
+        
+        achievementsList.appendChild(noAchievementsMessage);
+    }
+}
+
+// Добавить достижение
+function addAchievement(title, icon = '🏆') {
+    const achievement = {
+        title: title,
+        icon: icon,
+        date: new Date().toISOString()
+    };
+    
+    if (!userData.achievements) {
+        userData.achievements = [];
+    }
+    
+    userData.achievements.push(achievement);
+    saveUserData();
+    updateAchievementsList();
+    
+    // Показываем уведомление о новом достижении
+    showNotification(`Новое достижение: ${title}`, 'success');
+}
+
+// Добавить очки пользователю
+function addPoints(points) {
+    userData.points += points;
+    saveUserData();
+    
+    // Показываем уведомление о начислении очков
+    showNotification(`Получено ${points} очков!`, 'success');
+}
+
+// Добавляем обработчики событий для профиля пользователя
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // Обработчик кнопки редактирования профиля
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function() {
+            // Заполняем форму текущими данными
+            const profileNameInput = document.getElementById('profile-name');
+            if (profileNameInput) {
+                profileNameInput.value = userData.name || '';
+            }
+            
+            // Показываем модальное окно
+            const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+            editProfileModal.show();
+        });
+    }
+    
+    // Обработчик кнопки сохранения профиля
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', function() {
+            // Получаем новое имя пользователя
+            const profileNameInput = document.getElementById('profile-name');
+            if (profileNameInput) {
+                userData.name = profileNameInput.value.trim() || 'Пользователь';
+            }
+            
+            // Сохраняем данные пользователя
+            saveUserData();
+            
+            // Обновляем профиль
+            updateUserProfile();
+            
+            // Закрываем модальное окно
+            const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            if (editProfileModal) {
+                editProfileModal.hide();
+            }
+            
+            // Показываем уведомление
+            showNotification('Профиль успешно обновлен!', 'success');
+        });
+    }
+    
+    // ... existing code ...
+}); 
+
+// Обработка нажатия кнопки назад в Telegram
+function handleBackButton() {
+    // Получаем активную секцию
+    const activeSection = document.querySelector('.content-section.active');
+    
+    if (activeSection) {
+        const sectionId = activeSection.id;
+        
+        // Если мы находимся в просмотре курса или теста, возвращаемся к списку
+        if (sectionId === 'course-view') {
+            backToCourses();
+            return;
+        }
+        
+        if (sectionId === 'test-view') {
+            backToTests();
+            return;
+        }
+        
+        // Если мы находимся в любой другой секции, кроме главной, возвращаемся на главную
+        if (sectionId !== 'home') {
+            // Показываем главную секцию
+            showSection('home');
+            
+            // Обновляем активную кнопку навигации
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-section') === 'home') {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Скрываем кнопку назад в Telegram
+            if (tg && tg.BackButton) {
+                tg.BackButton.hide();
+            }
+        }
+    }
 } 
