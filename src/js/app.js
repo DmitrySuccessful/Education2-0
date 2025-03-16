@@ -831,6 +831,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const profileNameInput = document.getElementById('profile-name');
             if (profileNameInput) {
                 profileNameInput.value = userData.name || '';
+                
+                // Устанавливаем фокус на поле ввода после открытия модального окна
+                setTimeout(() => {
+                    profileNameInput.focus();
+                }, 500);
             }
             
             // Показываем модальное окно
@@ -859,10 +864,35 @@ document.addEventListener('DOMContentLoaded', function() {
             const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
             if (editProfileModal) {
                 editProfileModal.hide();
+            } else {
+                // Альтернативный способ закрытия модального окна
+                document.querySelector('[data-bs-dismiss="modal"]').click();
             }
             
             // Показываем уведомление
             showNotification('Профиль успешно обновлен!', 'success');
+        });
+    }
+    
+    // Обработчик кнопки отмены
+    const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+    if (cancelProfileBtn) {
+        cancelProfileBtn.addEventListener('click', function() {
+            // Закрываем модальное окно
+            const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            if (editProfileModal) {
+                editProfileModal.hide();
+            }
+        });
+    }
+    
+    // Обработчик события отправки формы
+    const profileEditForm = document.getElementById('profile-edit-form');
+    if (profileEditForm) {
+        profileEditForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Имитируем нажатие на кнопку сохранения
+            document.getElementById('save-profile-btn').click();
         });
     }
     
@@ -873,6 +903,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (userData.completedLessons.length === 0 && userData.testResults.length === 0) {
         // Показываем модальное окно для ввода имени
         setTimeout(() => {
+            const profileNameInput = document.getElementById('profile-name');
+            if (profileNameInput) {
+                profileNameInput.value = userData.name || '';
+                
+                // Устанавливаем фокус на поле ввода
+                setTimeout(() => {
+                    profileNameInput.focus();
+                }, 500);
+            }
+            
             const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
             editProfileModal.show();
         }, 1000);
@@ -2227,56 +2267,6 @@ function addPoints(points) {
     // Показываем уведомление о начислении очков
     showNotification(`Получено ${points} очков!`, 'success');
 }
-
-// Добавляем обработчики событий для профиля пользователя
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-    
-    // Обработчик кнопки редактирования профиля
-    const editProfileBtn = document.getElementById('edit-profile-btn');
-    if (editProfileBtn) {
-        editProfileBtn.addEventListener('click', function() {
-            // Заполняем форму текущими данными
-            const profileNameInput = document.getElementById('profile-name');
-            if (profileNameInput) {
-                profileNameInput.value = userData.name || '';
-            }
-            
-            // Показываем модальное окно
-            const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
-            editProfileModal.show();
-        });
-    }
-    
-    // Обработчик кнопки сохранения профиля
-    const saveProfileBtn = document.getElementById('save-profile-btn');
-    if (saveProfileBtn) {
-        saveProfileBtn.addEventListener('click', function() {
-            // Получаем новое имя пользователя
-            const profileNameInput = document.getElementById('profile-name');
-            if (profileNameInput) {
-                userData.name = profileNameInput.value.trim() || 'Пользователь';
-            }
-            
-            // Сохраняем данные пользователя
-            saveUserData();
-            
-            // Обновляем профиль
-            updateUserProfile();
-            
-            // Закрываем модальное окно
-            const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-            if (editProfileModal) {
-                editProfileModal.hide();
-            }
-            
-            // Показываем уведомление
-            showNotification('Профиль успешно обновлен!', 'success');
-        });
-    }
-    
-    // ... existing code ...
-}); 
 
 // Обработка нажатия кнопки назад в Telegram
 function handleBackButton() {
