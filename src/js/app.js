@@ -2023,6 +2023,9 @@ function updateUserProfile() {
     // Обновляем прогресс по курсам
     updateCourseProgressList();
     
+    // Обновляем карточки курсов на главной странице
+    updateHomeCourseCards();
+    
     // Обновляем достижения
     updateAchievementsList();
 }
@@ -2313,5 +2316,164 @@ function handleBackButton() {
                 tg.BackButton.hide();
             }
         }
+    }
+} 
+
+// Обновить карточки курсов на главной странице
+function updateHomeCourseCards() {
+    const courseCardsContainer = document.getElementById('home-course-cards');
+    if (!courseCardsContainer) return;
+    
+    // Очищаем контейнер
+    courseCardsContainer.innerHTML = '';
+    
+    // Цвета для фонов карточек
+    const backgroundColors = {
+        1: '#3498db', // Основы программирования
+        2: '#2ecc71', // Веб-разработка
+        3: '#9b59b6', // Мобильная разработка
+        4: '#e74c3c', // Мастер продаж
+        5: '#f39c12'  // Финансовая грамотность
+    };
+    
+    // Добавляем карточки для каждого курса
+    for (const courseId in courses) {
+        const course = courses[courseId];
+        const isUnlocked = isCourseUnlocked(parseInt(courseId));
+        const canUnlock = canUnlockCourse(parseInt(courseId));
+        
+        // Определяем статус курса
+        let statusClass = '';
+        let statusText = '';
+        
+        if (isUnlocked) {
+            // Проверяем, завершен ли курс
+            const totalLessons = course.lessons.length;
+            const completedLessons = course.lessons.filter(lesson => lesson.completed).length;
+            
+            if (completedLessons === totalLessons && totalLessons > 0) {
+                statusClass = 'status-completed';
+                statusText = 'Завершен';
+            } else if (parseInt(courseId) === 1) {
+                statusClass = 'status-free';
+                statusText = 'Бесплатно';
+            } else {
+                statusClass = 'status-premium';
+                statusText = 'Открыт';
+            }
+        } else {
+            statusClass = 'status-locked';
+            statusText = 'Заблокирован';
+        }
+        
+        // Создаем карточку курса
+        const courseCard = document.createElement('div');
+        courseCard.className = 'home-course-card card shadow-sm';
+        
+        // Добавляем изображение курса
+        const courseImage = document.createElement('div');
+        courseImage.className = 'card-img-top';
+        courseImage.style.backgroundColor = backgroundColors[courseId] || '#777';
+        
+        // Добавляем содержимое карточки
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        
+        // Добавляем статус курса
+        const courseStatus = document.createElement('div');
+        courseStatus.className = `course-status ${statusClass}`;
+        courseStatus.textContent = statusText;
+        
+        // Добавляем заголовок курса
+        const courseTitle = document.createElement('h5');
+        courseTitle.className = 'card-title';
+        courseTitle.textContent = course.title;
+        
+        // Добавляем описание курса
+        const courseDescription = document.createElement('p');
+        courseDescription.className = 'card-text';
+        courseDescription.textContent = course.description;
+        
+        // Добавляем кнопку действия
+        const actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-primary w-100';
+        
+        if (isUnlocked) {
+            actionButton.textContent = 'Перейти к курсу';
+            actionButton.addEventListener('click', () => openCourse(parseInt(courseId)));
+        } else if (canUnlock) {
+            actionButton.textContent = 'Открыть за 10 очков';
+            actionButton.addEventListener('click', () => unlockCourse(parseInt(courseId)));
+        } else {
+            actionButton.textContent = 'Недостаточно очков';
+            actionButton.disabled = true;
+            actionButton.className = 'btn btn-secondary w-100';
+        }
+        
+        // Собираем карточку
+        cardBody.appendChild(courseStatus);
+        cardBody.appendChild(courseTitle);
+        cardBody.appendChild(courseDescription);
+        cardBody.appendChild(actionButton);
+        
+        courseCard.appendChild(courseImage);
+        courseCard.appendChild(cardBody);
+        
+        // Если курс заблокирован, добавляем оверлей с замком
+        if (!isUnlocked) {
+            const lockOverlay = document.createElement('div');
+            lockOverlay.className = 'course-lock-overlay';
+            
+            const lockIcon = document.createElement('div');
+            lockIcon.className = 'lock-icon';
+            lockIcon.innerHTML = '🔒';
+            
+            const lockText = document.createElement('div');
+            lockText.className = 'lock-text';
+            lockText.textContent = 'Курс заблокирован';
+            
+            const pointsText = document.createElement('div');
+            pointsText.className = 'points-text';
+            pointsText.textContent = 'Открыть за 10 очков';
+            
+            lockOverlay.appendChild(lockIcon);
+            lockOverlay.appendChild(lockText);
+            lockOverlay.appendChild(pointsText);
+            
+            courseCard.appendChild(lockOverlay);
+        }
+        
+        // Добавляем карточку в контейнер
+        courseCardsContainer.appendChild(courseCard);
+    }
+}
+
+// Разблокировать курс
+function unlockCourse(courseId) {
+    // Проверяем, достаточно ли очков
+    if (userData.points >= 10) {
+        // Списываем очки
+        userData.points -= 10;
+        
+        // Отмечаем первый урок курса как доступный
+        const course = courses[courseId];
+        if (course && course.lessons.length > 0) {
+            course.lessons[0].locked = false;
+        }
+        
+        // Добавляем достижение
+        addAchievement(`Открыт курс "${course.title}"`, '🔓');
+        
+        // Сохраняем данные пользователя
+        saveUserData();
+        
+        // Обновляем интерфейс
+        updateUserProfile();
+        
+        // Показываем уведомление
+        showNotification(`Курс "${course.title}" успешно открыт!`, 'success');
+    } else {
+        // Показываем уведомление о недостатке очков
+        showNotification('Недостаточно очков для открытия курса', 'error');
     }
 } 

@@ -2215,4 +2215,138 @@ footer {
 .achievement-date {
     font-size: 0.8rem;
     color: var(--tg-theme-hint-color);
+}
+
+/* Стили для сетки карточек курсов на главной странице */
+.course-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.home-course-card {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    height: 100%;
+}
+
+.home-course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.home-course-card .card-img-top {
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+}
+
+.home-course-card .card-body {
+    padding: 1.25rem;
+}
+
+.home-course-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.home-course-card .card-text {
+    font-size: 0.9rem;
+    color: var(--tg-theme-hint-color);
+    margin-bottom: 0.75rem;
+}
+
+.course-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+
+.status-free {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+.status-premium {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #FFC107;
+}
+
+.status-locked {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: var(--locked-color);
+}
+
+.status-completed {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+}
+
+.course-lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+.lock-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.lock-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.points-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 576px) {
+    .course-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    body.tg-dark-theme .home-course-card {
+        background-color: #333;
+    }
+    
+    body.tg-dark-theme .status-free {
+        background-color: rgba(76, 175, 80, 0.2);
+    }
+    
+    body.tg-dark-theme .status-premium {
+        background-color: rgba(255, 193, 7, 0.2);
+    }
+    
+    body.tg-dark-theme .status-locked {
+        background-color: rgba(158, 158, 158, 0.2);
+    }
+    
+    body.tg-dark-theme .status-completed {
+        background-color: rgba(33, 150, 243, 0.2);
+    }
 } 
